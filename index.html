@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood to Movie</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e1b4b 0%, #581c87 50%, #1e1b4b 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #e9d5ff;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .moods-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .mood-card {
+            padding: 50px 30px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mood-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .mood-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0);
+            transition: all 0.3s;
+        }
+
+        .mood-card:hover::before {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .mood-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .mood-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+
+        .happy { background: linear-gradient(135deg, #fbbf24, #f97316); }
+        .romantic { background: linear-gradient(135deg, #f472b6, #e11d48); }
+        .excited { background: linear-gradient(135deg, #a78bfa, #4f46e5); }
+        .scary { background: linear-gradient(135deg, #6b7280, #111827); }
+        .thoughtful { background: linear-gradient(135deg, #2dd4bf, #0891b2); }
+        .adventurous { background: linear-gradient(135deg, #4ade80, #059669); }
+
+        .movies-section {
+            display: none;
+        }
+
+        .movies-section.active {
+            display: block;
+        }
+
+        .section-title {
+            display: inline-block;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .movie-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .movie-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2));
+            opacity: 0;
+            transition: opacity 0.3s;
+            border-radius: 15px;
+        }
+
+        .movie-card:hover::before {
+            opacity: 1;
+        }
+
+        .movie-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .movie-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .movie-year {
+            color: #c084fc;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .watch-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #a855f7;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .trailer-section {
+            display: none;
+        }
+
+        .trailer-section.active {
+            display: block;
+        }
+
+        .trailer-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .trailer-info {
+            padding: 40px;
+        }
+
+        .trailer-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .trailer-year {
+            font-size: 1.5rem;
+            color: #c084fc;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .moods-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .mood-card {
+                padding: 30px 15px;
+            }
+
+            .mood-icon {
+                font-size: 2.5rem;
+            }
+
+            .mood-name {
+                font-size: 1.2rem;
+            }
+
+            .movies-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🎬 Mood to Movie ✨</h1>
+        <p class="subtitle">How are you feeling today?</p>
+    </header>
+
+    <div class="container">
+        <!-- Mood Selection -->
+        <div id="moodSelection" class="moods-section">
+            <div class="moods-grid">
+                <div class="mood-card happy" data-mood="happy">
+                    <div class="mood-icon">😄</div>
+                    <div class="mood-name">Happy</div>
+                </div>
+                <div class="mood-card romantic" data-mood="romantic">
+                    <div class="mood-icon">❤️</div>
+                    <div class="mood-name">Romantic</div>
+                </div>
+                <div class="mood-card excited" data-mood="excited">
+                    <div class="mood-icon">⚡</div>
+                    <div class="mood-name">Excited</div>
+                </div>
+                <div class="mood-card scary" data-mood="scary">
+                    <div class="mood-icon">👻</div>
+                    <div class="mood-name">Scared</div>
+                </div>
+                <div class="mood-card thoughtful" data-mood="thoughtful">
+                    <div class="mood-icon">🧠</div>
+                    <div class="mood-name">Thoughtful</div>
+                </div>
+                <div class="mood-card adventurous" data-mood="adventurous">
+                    <div class="mood-icon">🏔️</div>
+                    <div class="mood-name">Adventurous</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Movies Section -->
+        <div id="moviesSection" class="movies-section">
+            <button class="back-btn" onclick="showMoods()">← Change Mood</button>
+            <div id="moodTitle" class="section-title"></div>
+            <div id="moviesGrid" class="movies-grid"></div>
+        </div>
+
+        <!-- Trailer Section -->
+        <div id="trailerSection" class="trailer-section">
+            <button class="back-btn" onclick="showMovies()">← Back to Movies</button>
+            <div class="trailer-container">
+                <div class="video-wrapper">
+                    <iframe id="trailerFrame" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                <div class="trailer-info">
+                    <div id="trailerTitle" class="trailer-title"></div>
+                    <div id="trailerYear" class="trailer-year"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const movies = {
+            happy: [
+                { title: 'Paddington 2', year: 2017, trailer: 'https://www.youtube.com/embed/6N9c8cM11-s' },
+                { title: 'Amélie', year: 2001, trailer: 'https://www.youtube.com/embed/HUECWi5pX7o' },
+                { title: 'The Grand Budapest Hotel', year: 2014, trailer: 'https://www.youtube.com/embed/1Fg5iWmQjwk' }
+            ],
+            romantic: [
+                { title: 'La La Land', year: 2016, trailer: 'https://www.youtube.com/embed/0pdqf4P9MB8' },
+                { title: 'The Notebook', year: 2004, trailer: 'https://www.youtube.com/embed/yDJIcYE2a60' },
+                { title: 'Pride and Prejudice', year: 2005, trailer: 'https://www.youtube.com/embed/1Exi--3_1PY' }
+            ],
+            excited: [
+                { title: 'Mad Max: Fury Road', year: 2015, trailer: 'https://www.youtube.com/embed/hEJnMQG9ev8' },
+                { title: 'Top Gun: Maverick', year: 2022, trailer: 'https://www.youtube.com/embed/qSqVVswa420' },
+                { title: 'Inception', year: 2010, trailer: 'https://www.youtube.com/embed/YoHD9XEInc0' }
+            ],
+            scary: [
+                { title: 'The Conjuring', year: 2013, trailer: 'https://www.youtube.com/embed/k10ETZ41q5o' },
+                { title: 'Get Out', year: 2017, trailer: 'https://www.youtube.com/embed/DzfPL6YhAKM' },
+                { title: 'A Quiet Place', year: 2018, trailer: 'https://www.youtube.com/embed/WR7cc5t7tv8' }
+            ],
+            thoughtful: [
+                { title: 'Arrival', year: 2016, trailer: 'https://www.youtube.com/embed/tFMo3UJ4B4g' },
+                { title: 'Eternal Sunshine', year: 2004, trailer: 'https://www.youtube.com/embed/yE-f1alkq9I' },
+                { title: 'Interstellar', year: 2014, trailer: 'https://www.youtube.com/embed/zSWdZVtXT7E' }
+            ],
+            adventurous: [
+                { title: 'The Lord of the Rings', year: 2001, trailer: 'https://www.youtube.com/embed/V75dMMIW2B4' },
+                { title: 'Indiana Jones', year: 1981, trailer: 'https://www.youtube.com/embed/1TwPYpOP0K8' },
+                { title: 'Dune', year: 2021, trailer: 'https://www.youtube.com/embed/8g18jFHCLXk' }
+            ]
+        };
+
+        const moodNames = {
+            happy: 'Happy',
+            romantic: 'Romantic',
+            excited: 'Excited',
+            scary: 'Scared',
+            thoughtful: 'Thoughtful',
+            adventurous: 'Adventurous'
+        };
+
+        const moodClasses = {
+            happy: 'happy',
+            romantic: 'romantic',
+            excited: 'excited',
+            scary: 'scary',
+            thoughtful: 'thoughtful',
+            adventurous: 'adventurous'
+        };
+
+        let currentMood = '';
+
+        // Add click events to mood cards
+        document.querySelectorAll('.mood-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const mood = this.dataset.mood;
+                showMoviesForMood(mood);
+            });
+        });
+
+        function showMoviesForMood(mood) {
+            currentMood = mood;
+            const moodMovies = movies[mood];
+            
+            // Update title
+            const titleElement = document.getElementById('moodTitle');
+            titleElement.textContent = `Perfect movies for your ${moodNames[mood].toLowerCase()} mood`;
+            titleElement.className = `section-title ${moodClasses[mood]}`;
+            
+            // Create movie cards
+            const moviesGrid = document.getElementById('moviesGrid');
+            moviesGrid.innerHTML = '';
+            
+            moodMovies.forEach(movie => {
+                const movieCard = document.createElement('div');
+                movieCard.className = 'movie-card';
+                movieCard.innerHTML = `
+                    <div class="movie-icon">🎬</div>
+                    <div class="movie-title">${movie.title}</div>
+                    <div class="movie-year">${movie.year}</div>
+                    <div class="watch-btn">Watch Trailer →</div>
+                `;
+                movieCard.addEventListener('click', () => showTrailer(movie));
+                moviesGrid.appendChild(movieCard);
+            });
+            
+            // Show movies section
+            document.getElementById('moodSelection').classList.add('hidden');
+            document.getElementById('moviesSection').classList.add('active');
+        }
+
+        function showTrailer(movie) {
+            document.getElementById('trailerFrame').src = movie.trailer;
+            document.getElementById('trailerTitle').textContent = movie.title;
+            document.getElementById('trailerYear').textContent = movie.year;
+            
+            document.getElementById('moviesSection').classList.remove('active');
+            document.getElementById('trailerSection').classList.add('active');
+        }
+
+        function showMovies() {
+            document.getElementById('trailerSection').classList.remove('active');
+            document.getElementById('moviesSection').classList.add('active');
+            document.getElementById('trailerFrame').src = '';
+        }
+
+        function showMoods() {
+            document.getElementById('moviesSection').classList.remove('active');
+            document.getElementById('moodSelection').classList.remove('hidden');
+            currentMood = '';
+        }
+    </script>
+</body>
+              </html>
